@@ -1,0 +1,17 @@
+{
+    "name": "athphane/monolog-webhook",
+    "description": "Monolog handler that sends messages to webhook endpoints",
+    "type": "package",
+    "autoload": {
+        "psr-4": {
+            "Athphane\\MonologWebhook\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Athphane\\MonologWebhook\\MonologWebhookServiceProvider"
+            ]
+        }
+    }
+}
