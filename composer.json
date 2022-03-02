@@ -17,7 +17,7 @@
     "license": "MIT",
     "require": {
         "ext-json": "*",
-        "monolog/monolog": "^2.3",
+        "monolog/monolog": "^1.25",
         "guzzlehttp/guzzle": "^6.5.5"
     }
 }
