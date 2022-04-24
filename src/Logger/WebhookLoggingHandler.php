@@ -2,8 +2,10 @@
 
 namespace Athphane\MonologWebhook\Logger;
 
+use Illuminate\Support\Facades\Log;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Logger;
+use Spatie\WebhookServer\WebhookCall;
 
 class WebhookLoggingHandler extends AbstractProcessingHandler
 {
@@ -23,10 +25,11 @@ class WebhookLoggingHandler extends AbstractProcessingHandler
 
     /**
      * {@inheritDoc}
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function handle(array $record): bool
     {
-        if (! $this->isHandling($record)) {
+        if (!$this->isHandling($record)) {
             return false;
         }
 
@@ -51,36 +54,10 @@ class WebhookLoggingHandler extends AbstractProcessingHandler
      */
     protected function write(array $record): void
     {
-        $signature_header = $this->getPrefixedSignature();
-        $signature = $this->computeSignature($record);
-
-        $client = new \GuzzleHttp\Client();
-        $client->post($this->url, [
-            'headers'     => [
-                $signature_header => $signature,
-            ],
-            'form_params' => $record,
-        ]);
-    }
-
-    /**
-     * Calculates a signature for the payload
-     *
-     * @param  array  $record
-     * @return string
-     */
-    private function computeSignature(array $record): string
-    {
-        return hash_hmac('sha256', json_encode($record), $this->secret);
-    }
-
-    /**
-     * Adds the signature header prefix if configured in the environment
-     *
-     * @return string
-     */
-    private function getPrefixedSignature(): string
-    {
-        return "{$this->prefix}Signature";
+        WebhookCall::create()
+            ->url($this->url)
+            ->payload(['data' => json_encode($record)])
+            ->useSecret($this->secret)
+            ->dispatch();
     }
 }
